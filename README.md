@@ -19,7 +19,7 @@ cd SocialMediaServices
 npm install
 ```
 
-##Uso
+## Uso
 
 Para ejecutar la aplicación, utiliza el siguiente comando:
 
@@ -29,7 +29,8 @@ npm start
 
 Asegúrate de tener las credenciales adecuadas para acceder a la API de jqaw.org. Configura tu archivo de configuración con las claves API necesarias.configuralas en una variable de entorno llamada JQAW_API_KEY
 
-##Contribuciones
+## Contribuciones
+
 Las contribuciones son bienvenidas. Si deseas contribuir al proyecto, por favor sigue estos pasos:
 
 -   Haz un fork del repositorio.
@@ -38,5 +39,6 @@ Las contribuciones son bienvenidas. Si deseas contribuir al proyecto, por favor 
 -   Haz push a la rama (git push origin feature/nueva-funcionalidad).
 -   Abre una pull request.
 
-##Contacto
+## Contacto
+
 Para más información, contacta a Luis Gómez en lufe023@gmail.com.
