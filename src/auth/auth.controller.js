@@ -1,7 +1,7 @@
-//* Email y Contraseña del usuario 
+//* Email y Contraseña del usuario
 
-const { getUserByEmail } = require("../users/users.controllers")
-const {comparePassword} = require('../utils/crypto')
+const { getUserByEmail } = require("../users/users.controllers");
+const { comparePassword } = require("../utils/crypto");
 //? El email es unico en mi base de datos
 
 const loginUser = async (email, password) => {
@@ -10,20 +10,18 @@ const loginUser = async (email, password) => {
     //* 2 Las credenciales son invalidas y retornamos false
 
     try {
-        const user = await getUserByEmail(email)
+        const user = await getUserByEmail(email);
         //? user.password contiene la contraseña encriptada de mi base de datos
-        const verifyPassword = comparePassword(password, user.password)
-        if(verifyPassword){
-            return user
-        } 
-        return false
+        const verifyPassword = comparePassword(password, user.password);
+        if (verifyPassword) {
+            return user;
+        }
+        return false;
     } catch (err) {
-        return false
+        return false;
     }
-}
-
-
+};
 
 module.exports = {
-    loginUser
-}
+    loginUser,
+};
