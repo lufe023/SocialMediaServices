@@ -57,6 +57,10 @@ const Users = db.define("users", {
         allowNull: true,
         unique: true,
     },
+    picture: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     status: {
         type: DataTypes.STRING,
         allowNull: false,

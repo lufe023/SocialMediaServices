@@ -1,9 +1,3 @@
-//? Auth va a contener las rutas de autorizacion y autenticacion
-//* Login
-//* Register
-//* Recovery Password
-//* Verify User
-
 const router = require("express").Router();
 const passport = require("passport");
 const authServices = require("./auth.services");
@@ -12,7 +6,6 @@ const { registerUser } = require("../users/users.services");
 //? /api/v1/auth
 
 router.post("/register", registerUser);
-
 router.post("/login", authServices.login);
 
 // Ruta para iniciar el proceso de autenticación con Google
@@ -20,23 +13,25 @@ router.get(
     "/google",
     passport.authenticate("google", { scope: ["profile", "email"] }),
     (req, res) => {
-        const { token } = req.user;
-        res.status(200).json({
-            message: "Correct Credentials",
-            token,
-        });
-        //res.redirect(`http://localhost:3000?token=${token}`);
+        // Este callback no se llamará, passport redirige automáticamente
     }
 );
 
-router.get(
-    "/google/callback",
-    passport.authenticate("google", { session: false, failureRedirect: "/" }),
-    (req, res) => {
-        const { token } = req.user;
+router.get("/google/callback", (req, res, next) => {
+    passport.authenticate("google", { session: false }, (err, user, info) => {
+        if (err || !user) {
+            // Redirigir al frontend con un mensaje de error si el usuario no está activo
+            return res.redirect(
+                `http://localhost:5173#/login?error=${encodeURIComponent(
+                    "El usuario no está activo"
+                )}`
+            );
+        }
+
+        const { token } = user;
         res.redirect(`http://localhost:5173#/login?token=${token}`);
-    }
-);
+    })(req, res, next);
+});
 
 // Ruta para cerrar sesión
 router.get("/logout", (req, res) => {
@@ -48,5 +43,4 @@ router.get("/logout", (req, res) => {
     });
 });
 
-/* sin secretos*/
 module.exports = router;
