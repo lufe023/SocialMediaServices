@@ -28,6 +28,10 @@ const Users = db.define("users", {
         type: DataTypes.STRING,
         allowNull: true, // Cambiado a true para que sea opcional
     },
+    passwordRequest: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
     phone: {
         type: DataTypes.STRING, // +52
         allowNull: true,

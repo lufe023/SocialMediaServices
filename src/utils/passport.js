@@ -45,7 +45,9 @@ passport.use(
                     email: user.email,
                     role: user.role,
                 };
-                const token = jwt.sign(payload, jwtSecret, { expiresIn: "1h" });
+                const token = jwt.sign(payload, jwtSecret, {
+                    expiresIn: "30d",
+                });
 
                 return done(null, { user, token });
             } catch (error) {

@@ -73,6 +73,36 @@ const getUserByEmail = async (email) => {
     return data;
 };
 
+const requestForgotPassword = async (email) => {
+    const codigo = uuid.v4();
+    const result = await Users.update(
+        {
+            passwordRequest: codigo,
+        },
+        {
+            where: {
+                email,
+            },
+        }
+    );
+    return [result, codigo];
+};
+
+const changeForgotPassword = async (idRequest, data) => {
+    const result = await Users.update(
+        {
+            password: hashPassword(data.newPassword),
+            passwordRequest: null,
+        },
+        {
+            where: {
+                passwordRequest: idRequest,
+            },
+        }
+    );
+    return result;
+};
+
 module.exports = {
     createUser,
     getAllUsers,
@@ -80,4 +110,6 @@ module.exports = {
     updateUser,
     deleteUser,
     getUserByEmail,
+    requestForgotPassword,
+    changeForgotPassword,
 };
