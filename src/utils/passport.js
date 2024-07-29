@@ -21,7 +21,7 @@ passport.use(
 
                 // Si el usuario existe, verificar que esté activo
                 if (user) {
-                    if (user.status !== "active") {
+                    if (!user.active) {
                         return done(null, false, {
                             message: "El usuario no está activo.",
                         });

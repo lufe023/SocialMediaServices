@@ -74,7 +74,7 @@ const registerUser = (req, res) => {
 const requestForgotPassword = (req, res) => {
     const email = req.body.email;
 
-    // extraer frontendHost url del frontend desde los encabezados
+    // Extraer frontendHost URL del frontend desde los encabezados
     const frontendHost = req.headers.referer || req.headers.origin;
     if (!frontendHost) {
         return res
@@ -86,14 +86,25 @@ const requestForgotPassword = (req, res) => {
         .requestForgotPassword(email)
         .then((data) => {
             if (data[0] != 0) {
-                res.status(201).json({ message: "Peticion enviada" });
-                let bodyEmail = `Se ha hecho una peticion para recuperar la contraseña en nuestro Sistema, haga Click En el siguiente enlace para recuperar su contraseña <a href='${frontendHost}/#/recoverypassword/${data[1]}'>Recuperar Contraseña</a>  `;
+                res.status(201).json({ message: "Petición enviada" });
+
+                // Crear el cuerpo del correo en formato HTML
+                let bodyEmail = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                        <h2 style="color: #333;">Recuperación de Contraseña</h2>
+                        <p style="font-size: 16px; color: #666;">Se ha hecho una petición para recuperar la contraseña en nuestro sistema. Haga clic en el siguiente enlace para recuperar su contraseña:</p>
+                        <a href='${frontendHost}#/recoverypassword/${data[1]}' style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; border-radius: 5px; text-decoration: none; margin: 20px 0;">Recuperar Contraseña</a>
+                        <p style="font-size: 14px; color: #999;">Si no solicitó este correo, puede ignorarlo.</p>
+                        <p style="font-size: 14px; color: #999;">Saludos,<br>El equipo de Luis Fernando Microsystem</p>
+                    </div>
+                `;
+
                 if (email.includes("@")) {
                     enviarMail(
                         "no-reply@mielector.com",
                         email,
-                        "Recuperacion de Contraseña",
-                        "la recuperacion se envio",
+                        "Recuperación de Contraseña",
+                        "La recuperación se envió",
                         bodyEmail
                     );
                 }
@@ -147,9 +158,7 @@ const changeForgotPassword = (req, res) => {
 
 const patchUser = (req, res) => {
     const id = req.params.id;
-
     const data = req.body;
-
     usersControllers
         .updateUser(id, data)
         .then((data) => {

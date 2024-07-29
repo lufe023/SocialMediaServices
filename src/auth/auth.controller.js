@@ -13,7 +13,8 @@ const loginUser = async (email, password) => {
         const user = await getUserByEmail(email);
         //? user.password contiene la contraseña encriptada de mi base de datos
         const verifyPassword = comparePassword(password, user.password);
-        if (verifyPassword) {
+        const isActive = user.active;
+        if (verifyPassword && isActive) {
             return user;
         }
         return false;

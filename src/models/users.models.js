@@ -32,6 +32,10 @@ const Users = db.define("users", {
         type: DataTypes.UUID,
         allowNull: true,
     },
+    active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
     phone: {
         type: DataTypes.STRING, // +52
         allowNull: true,

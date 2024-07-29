@@ -1,13 +1,17 @@
 const router = require("express").Router();
 const passport = require("passport");
-const adminValidate = require("../middlewares/role.middleware");
 const userServices = require("./users.services");
-
+const roleValidate = require("../middlewares/role.middleware");
 require("../middlewares/auth.middleware")(passport);
 
 //? rutas raiz
 
-router.get("/", userServices.getAllUsers);
+router.get(
+    "/",
+    passport.authenticate("jwt", { session: false }),
+    roleValidate(["Administrator"]),
+    userServices.getAllUsers
+);
 
 //TODO el registerUser ira en la ruta /auth/register
 
@@ -25,14 +29,17 @@ router
     .route("/me")
     .get(
         passport.authenticate("jwt", { session: false }),
+        roleValidate(["Administrator", "Cliente"]),
         userServices.getMyUser
     )
     .patch(
         passport.authenticate("jwt", { session: false }),
+        roleValidate(["Administrator", "Cliente"]),
         userServices.patchMyUser
     )
     .delete(
         passport.authenticate("jwt", { session: false }),
+        roleValidate(["Administrator"]),
         userServices.deleteMyUser
     );
 
@@ -46,15 +53,19 @@ router
 //? /api/v1/users/:id
 router
     .route("/:id")
-    .get(userServices.getUserById)
+    .get(
+        passport.authenticate("jwt", { session: false }),
+        roleValidate(["Administrator", "Cliente"]),
+        userServices.getUserById
+    )
     .patch(
         passport.authenticate("jwt", { session: false }),
-        adminValidate,
+        roleValidate(["Administrator"]),
         userServices.patchUser
     )
     .delete(
         passport.authenticate("jwt", { session: false }),
-        adminValidate,
+        roleValidate(["Administrator"]),
         userServices.deleteUser
     );
 

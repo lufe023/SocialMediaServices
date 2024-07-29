@@ -19,7 +19,6 @@ enviarMail = async (from, mailReceiver, subject, text, html) => {
         html: html,
     };
 
-    console.log(mensaje);
     const transport = nodemailer.createTransport(config);
 
     const info = await transport.sendMail(mensaje);
