@@ -55,7 +55,7 @@ const Users = db.define("users", {
             model: Roles,
             key: "id",
         },
-        defaultValue: 1,
+        // defaultValue: 1,
     },
     country: {
         type: DataTypes.STRING,

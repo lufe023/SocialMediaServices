@@ -159,20 +159,27 @@ const changeForgotPassword = (req, res) => {
 const patchUser = (req, res) => {
     const id = req.params.id;
     const data = req.body;
-    usersControllers
-        .updateUser(id, data)
-        .then((data) => {
-            if (data[0]) {
-                res.status(200).json({
-                    message: `User with ID: ${id}, edited succesfully!`,
-                });
-            } else {
-                res.status(404).json({ message: "Invalid ID h" });
-            }
-        })
-        .catch((err) => {
-            res.status(400).json({ message: err.message });
+    const AdminId = req.user.id;
+    if (AdminId === id && !data.active) {
+        res.status(400).json({
+            message: "No puedes, ni debes desactivarte a ti mismo",
         });
+    } else {
+        usersControllers
+            .updateUser(id, data)
+            .then((data) => {
+                if (data[0]) {
+                    res.status(200).json({
+                        message: `User with ID: ${id}, edited succesfully!`,
+                    });
+                } else {
+                    res.status(404).json({ message: "Invalid ID h" });
+                }
+            })
+            .catch((err) => {
+                res.status(400).json({ message: err.message });
+            });
+    }
 };
 
 const deleteUser = (req, res) => {

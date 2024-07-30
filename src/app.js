@@ -11,6 +11,8 @@ const { port } = require("./config");
 //* Routes
 const userRouter = require("./users/users.router");
 const authRouter = require("./auth/auth.router");
+const transactionRouter = require("./FundTransactions/fundTransactions.router");
+
 const initModels = require("./models/initModels");
 const path = require("path");
 
@@ -39,7 +41,7 @@ db.authenticate()
     });
 
 // db.sync({ alter: true })
-db.sync({ alter: false })
+db.sync({ alter: true })
     .then(() => {
         console.log("Database Synced");
     })
@@ -55,8 +57,10 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/transactions", transactionRouter);
 
 app.listen(port, () => {
     console.log(`Server started at port ${port}`);
 });
+
 /**/

@@ -11,6 +11,7 @@ const config = {
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     db: {
         host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASS,
         dbName: process.env.DB_NAME,

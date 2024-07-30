@@ -19,9 +19,6 @@ const initModels = () => {
     Users.hasMany(FundTransactions, { foreignKey: "user_id" });
 
     Funds.belongsTo(Users, { foreignKey: "user_id" });
-
-    // Users.hasOne(Funds, { foreignKey: "user_id" });
-
     Users.hasOne(Funds, {
         foreignKey: "userId",
         sourceKey: "id",
@@ -30,5 +27,3 @@ const initModels = () => {
 };
 
 module.exports = initModels;
-
-/* */

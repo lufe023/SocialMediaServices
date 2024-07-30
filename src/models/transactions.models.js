@@ -1,3 +1,4 @@
+// models/transactions.models.js
 const { DataTypes } = require("sequelize");
 const db = require("../utils/database");
 const Users = require("./users.models");
@@ -49,6 +50,13 @@ const Transactions = db.define("transactions", {
     },
 });
 
-module.exports = Transactions;
+Transactions.addHook("afterCreate", async (transaction, options) => {
+    const Funds = require("./funds.models");
+    const fund = await Funds.findOne({ where: { userId: transaction.userId } });
+    if (fund) {
+        fund.balance -= transaction.amount;
+        await fund.save();
+    }
+});
 
-/* */
+module.exports = Transactions;
