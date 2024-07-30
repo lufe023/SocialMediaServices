@@ -19,11 +19,14 @@ router.get(
 
 router.get("/google/callback", (req, res, next) => {
     passport.authenticate("google", { session: false }, (err, user, info) => {
-        const frontendHost = req.headers.referer || req.headers.origin;
+        const frontendHost = req.headers.referer
+            ? new URL(req.headers.referer).origin
+            : "http://localhost:5173";
+
         if (err || !user) {
             // Redirigir al frontend con un mensaje de error si el usuario no está activo
             return res.redirect(
-                `${frontendHost}#/login?error=${encodeURIComponent(
+                `${frontendHost}/login?error=${encodeURIComponent(
                     "El usuario no está activo"
                 )}`
             );
@@ -31,7 +34,7 @@ router.get("/google/callback", (req, res, next) => {
 
         const { token } = user;
 
-        res.redirect(`${frontendHost}#/login?token=${token}`);
+        res.redirect(`${frontendHost}/login?token=${token}`);
     })(req, res, next);
 });
 
