@@ -19,18 +19,14 @@ router.get(
 
 router.get("/google/callback", (req, res, next) => {
     passport.authenticate("google", { session: false }, (err, user, info) => {
-        // Obtén la URL base del frontend desde una variable de entorno
         const frontendHost =
             process.env.FRONTEND_HOST || "http://localhost:5173";
-
-        // Asegúrate de que frontendHost no tenga una barra inclinada al final
         const frontendHostWithoutTrailingSlash = frontendHost.replace(
             /\/+$/,
             ""
         );
 
         if (err || !user) {
-            // Redirigir al frontend con un mensaje de error si el usuario no está activo
             return res.redirect(
                 `${frontendHostWithoutTrailingSlash}/login?error=${encodeURIComponent(
                     "El usuario no está activo"
@@ -45,6 +41,7 @@ router.get("/google/callback", (req, res, next) => {
         );
     })(req, res, next);
 });
+
 // Ruta para cerrar sesión
 router.get("/logout", (req, res) => {
     req.logout((err) => {
