@@ -28,7 +28,7 @@ router.get("/google/callback", (req, res, next) => {
 
         if (err || !user) {
             return res.redirect(
-                `${frontendHostWithoutTrailingSlash}/login?error=${encodeURIComponent(
+                `${frontendHostWithoutTrailingSlash}#/login?error=${encodeURIComponent(
                     "El usuario no está activo"
                 )}`
             );
@@ -37,11 +37,10 @@ router.get("/google/callback", (req, res, next) => {
         const { token } = user;
 
         res.redirect(
-            `${frontendHostWithoutTrailingSlash}/login?token=${token}`
+            `${frontendHostWithoutTrailingSlash}#/login?token=${token}`
         );
     })(req, res, next);
 });
-
 // Ruta para cerrar sesión
 router.get("/logout", (req, res) => {
     req.logout((err) => {
