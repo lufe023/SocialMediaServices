@@ -10,7 +10,10 @@ passport.use(
         {
             clientID: googleClientID,
             clientSecret: googleClientSecret,
-            callbackURL: "http://localhost:9000/api/v1/auth/google/callback",
+            callbackURL:
+                process.env.NODE_ENV === "production"
+                    ? "https://socialmediaservices-production.up.railway.app/api/v1/auth/google/callback"
+                    : "http://localhost:9000/api/v1/auth/google/callback",
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
@@ -19,8 +22,8 @@ passport.use(
                     where: { googleId: profile.id },
                 });
 
-                // Si el usuario existe, verificar que esté activo
                 if (user) {
+                    // Si el usuario existe, verificar que esté activo
                     if (!user.active) {
                         return done(null, false, {
                             message: "El usuario no está activo.",
@@ -36,6 +39,8 @@ passport.use(
                         lastName: profile.name.familyName || "",
                         picture: profile.photos[0].value || "",
                         status: "active", // Establecer el estado del nuevo usuario a 'active'
+                        active: true,
+                        role: 1,
                     });
                 }
 
