@@ -23,7 +23,7 @@ const Services = db.define("services", {
     },
     price: {
         type: DataTypes.FLOAT,
-        allowNull: false,
+        allowNull: true,
     },
     rate: {
         type: DataTypes.FLOAT,
