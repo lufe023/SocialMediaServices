@@ -1,15 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const transactionsServices = require("./transactions.controllers");
+const orderServices = require("./purchases.services");
 const roleValidate = require("../middlewares/role.middleware");
 require("../middlewares/auth.middleware")(passport);
 
+router.get("/:userId", orderServices.getUserServiceOrders);
+
 router.post(
-    "/desactive",
+    "/buy",
     passport.authenticate("jwt", { session: false }),
     roleValidate(["Administrator", "Client"]),
-    transactionsServices.createTransaction
+    orderServices.createServiceOrder
 );
 
 module.exports = router;

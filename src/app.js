@@ -13,7 +13,7 @@ const userRouter = require("./users/users.router");
 const authRouter = require("./auth/auth.router");
 const transactionRouter = require("./FundTransactions/fundTransactions.router");
 const services = require("./services/services.router");
-const transaction = require("./transactions/transactions.router");
+const serviceOrders = require("./purchases/purchases.router");
 
 const initModels = require("./models/initModels");
 const path = require("path");
@@ -61,7 +61,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/transactions", transactionRouter);
 app.use("/api/v1/services", services);
-app.use("/api/v1/transaction", transaction);
+app.use("/api/v1/serviceOrders", serviceOrders);
 
 app.listen(port, () => {
     console.log(`Server started at port ${port}`);

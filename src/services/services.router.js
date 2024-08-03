@@ -15,11 +15,26 @@ router
         roleValidate(["Administrator", "Client"]),
         servicesServices.getAllServices
     )
+
     .post(
         passport.authenticate("jwt", { session: false }),
         roleValidate(["Administrator", "Client"]),
         servicesServices.createService
     );
+
+router.get(
+    "/categories",
+    passport.authenticate("jwt", { session: false }),
+    roleValidate(["Administrator", "Client"]),
+    servicesServices.getAllCategories
+);
+
+router.get(
+    "/category/:category",
+    passport.authenticate("jwt", { session: false }),
+    roleValidate(["Administrator", "Client"]),
+    servicesServices.getServicesByCategory
+);
 
 router
     .route("/:id")

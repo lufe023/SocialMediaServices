@@ -68,10 +68,30 @@ const deleteService = async (req, res) => {
     }
 };
 
+// Obtener todas las categorías
+const getAllCategories = (req, res) => {
+    servicesControllers
+        .getAllCategories()
+        .then((data) => res.status(200).json(data))
+        .catch((err) => res.status(500).json({ message: err }));
+};
+
+//Obtener servicios por categoría
+const getServicesByCategory = (req, res) => {
+    const parentCategory = req.params.category;
+
+    servicesControllers
+        .getServicesByCategory(parentCategory)
+        .then((data) => res.status(200).json(data))
+        .catch((err) => res.status(500).json({ message: err.message }));
+};
+
 module.exports = {
     getAllServices,
     getServiceById,
     createService,
     updateService,
     deleteService,
+    getAllCategories,
+    getServicesByCategory,
 };

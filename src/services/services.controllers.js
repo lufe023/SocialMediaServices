@@ -21,10 +21,30 @@ const deleteService = async (id) => {
     return await Services.destroy({ where: { id } });
 };
 
+// Obtener todas las categorías (único)
+const getAllCategories = async () => {
+    const services = await Services.findAll({
+        attributes: ["parentCategory"],
+        group: ["parentCategory"],
+    });
+    return services.map((service) => service.parentCategory);
+};
+
+// Obtener servicios por categoría
+const getServicesByCategory = async (parentCategory) => {
+    return await Services.findAll({
+        where: {
+            parentCategory: parentCategory,
+        },
+    });
+};
+
 module.exports = {
     getAllServices,
     getServiceById,
     createService,
     updateService,
     deleteService,
+    getAllCategories,
+    getServicesByCategory,
 };

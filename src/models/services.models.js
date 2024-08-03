@@ -7,21 +7,29 @@ const Services = db.define("services", {
         primaryKey: true,
         autoIncrement: true,
     },
-    service: { type: DataTypes.STRING },
-
+    service: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false,
     },
     type: {
         type: DataTypes.STRING,
+        allowNull: true,
     },
-
     description: {
         type: DataTypes.TEXT,
         allowNull: true,
     },
     price: {
+        // Precio para el cliente final
+        type: DataTypes.FLOAT,
+        allowNull: true,
+    },
+    jqawPrice: {
+        // Precio del servicio en jqaw
         type: DataTypes.FLOAT,
         allowNull: true,
     },
@@ -38,6 +46,10 @@ const Services = db.define("services", {
         allowNull: false,
     },
     category: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    parentCategory: {
         type: DataTypes.STRING,
         allowNull: true,
     },

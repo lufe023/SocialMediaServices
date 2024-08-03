@@ -4,6 +4,7 @@ const Transactions = require("./transactions.models");
 const Services = require("./services.models");
 const FundTransactions = require("./fundTransactions.models");
 const Funds = require("./funds.models");
+const ServiceOrders = require("./serviceOrders.models"); // Asegúrate de importar el modelo
 
 const initModels = () => {
     Users.belongsTo(Roles, { foreignKey: "role" });
@@ -24,6 +25,13 @@ const initModels = () => {
         sourceKey: "id",
         as: "fondos",
     });
+
+    // Agregar asociaciones entre ServiceOrders y Services
+    ServiceOrders.belongsTo(Services, {
+        foreignKey: "serviceId",
+        as: "service",
+    });
+    Services.hasMany(ServiceOrders, { foreignKey: "serviceId" });
 };
 
 module.exports = initModels;
