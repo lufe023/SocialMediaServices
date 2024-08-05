@@ -19,7 +19,7 @@ async function createServiceOrder(req, res) {
         if (!fund) {
             return res
                 .status(404)
-                .json({ message: "Funds not found for user" });
+                .json({ message: "Fondos no encontrados para el usuario" });
         }
 
         const totalCost = service.rate * quantity;
@@ -27,17 +27,32 @@ async function createServiceOrder(req, res) {
             return res.status(400).json({ message: "Fondos insuficientes" });
         }
 
-        const response = await axios.post("https://jqaw.org/api/v2", null, {
-            params: {
-                key: API_KEY,
-                action: "add",
-                service: service.service,
-                link,
-                quantity,
-            },
-        });
+        // Llamada a la API externa
+        let response;
+        try {
+            response = await axios.post("https://jqaw.org/api/v2", null, {
+                params: {
+                    key: API_KEY,
+                    action: "add",
+                    service: service.service,
+                    link,
+                    quantity,
+                },
+            });
+        } catch (error) {
+            console.error("Error al llamar a la API externa:", error);
+            return res
+                .status(500)
+                .json({ message: "Error al comunicarse con la API externa" });
+        }
 
-        const jqawOrderId = response.data.order; // Ajusta esto según la respuesta del API
+        // Validar la respuesta de la API externa
+        const jqawOrderId = response.data.order;
+        if (!jqawOrderId) {
+            return res
+                .status(500)
+                .json({ message: "Error al crear la orden en la API externa" });
+        }
 
         // Crear la orden en tu base de datos
         const newOrder = await ServiceOrders.create({
@@ -48,6 +63,7 @@ async function createServiceOrder(req, res) {
             customerPrice: service.price * quantity,
             status: "created",
             jqawOrderId,
+            link,
         });
 
         // Actualizar los fondos del usuario
@@ -56,7 +72,7 @@ async function createServiceOrder(req, res) {
 
         res.status(201).json(newOrder);
     } catch (error) {
-        console.error("Error creating order:", error);
+        console.error("Error creando la orden:", error);
         res.status(400).json({ message: error.message });
     }
 }
@@ -94,14 +110,16 @@ const getUserServiceOrders = async (req, res) => {
         });
 
         const statusData = response.data;
-
         const ordersWithStatus = serviceOrders.map((order) => {
             const statusInfo = statusData[order.jqawOrderId] || {
                 status: "Unknown",
             };
+
             return {
                 ...order.toJSON(),
                 externalStatus: statusInfo.status,
+                startCount: statusInfo.start_count,
+                remains: statusInfo.remains,
                 totalCost: order.totalCost,
                 serviceDetails: order.service, // detalles del servicio referenciado
             };
