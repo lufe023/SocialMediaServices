@@ -36,6 +36,13 @@ router
     );
 
 router
+    .route("/history/:userId")
+    .get(
+        passport.authenticate("jwt", { session: false }),
+        roleValidate(["Administrator", "Client"]),
+        fundTransactionServices.getTransactionsHistoryService
+    );
+router
     .route("/user/:userId")
     .get(
         passport.authenticate("jwt", { session: false }),

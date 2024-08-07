@@ -82,6 +82,18 @@ const getFundTransactionsByUserId = (req, res) => {
         });
 };
 
+const getTransactionsHistoryService = (req, res) => {
+    const userId = req.params.userId;
+    fundTransactionControllers
+        .getTransactionsHistory(userId)
+        .then((data) => {
+            res.status(200).json(data);
+        })
+        .catch((err) => {
+            res.status(400).json({ message: err.message });
+        });
+};
+
 module.exports = {
     getAllFundTransactions,
     getFundTransactionById,
@@ -89,4 +101,5 @@ module.exports = {
     updateFundTransaction,
     deleteFundTransaction,
     getFundTransactionsByUserId,
+    getTransactionsHistoryService,
 };
