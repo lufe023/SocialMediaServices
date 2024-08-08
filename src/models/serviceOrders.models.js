@@ -27,6 +27,10 @@ const ServiceOrders = db.define("serviceOrders", {
         },
         field: "service_id",
     },
+    serviceDescription: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,

@@ -31,6 +31,7 @@ const getTransactionsHistory = async (userId) => {
                 userId: transaction.userId,
                 amount: transaction.amount,
                 type: transaction.type === "deposit" ? "Ingreso" : "Egreso",
+                typeDetail: transaction.description,
                 description: transaction.description,
                 createdAt: transaction.createdAt,
             });
@@ -41,9 +42,11 @@ const getTransactionsHistory = async (userId) => {
             transactions.push({
                 id: order.id,
                 userId: order.userId,
-                amount: -order.totalCost, // Monto negativo para egresos
+                amount: -order.customerPrice, // Monto negativo para egresos
                 type: "Egreso",
-                description: `Servicio: ${order.service.category}`,
+                typeDetail: order.link,
+                description: order.serviceDescription, //`Servicio: ${order.service.category}`,
+                order: order,
                 createdAt: order.createdAt,
             });
         });

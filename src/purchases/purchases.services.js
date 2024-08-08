@@ -59,6 +59,7 @@ async function createServiceOrder(req, res) {
             userId,
             serviceId,
             quantity,
+            serviceDescription: service.name,
             totalCost,
             customerPrice: service.price * quantity,
             status: "created",
