@@ -260,41 +260,36 @@ const deleteMyUser = (req, res) => {
 //cambiar el rol de un usuario
 const changeUserRoleService = (req, res) => {
     const { id, newRoleId } = req.body;
-    console.log("aqui");
-    console.log(newRoleId);
-    console.log(id);
-    res.status(200).json({
-        message: `Your user was deleted succesfully!`,
-    });
-    // usersControllers
-    //     .getUserById(req.user.id)
-    //     .then((data) => {
-    //         if (data.userRoleId > newRoleId) {
-    //             usersControllers
-    //                 .changeUserRoleController(id, newRoleId)
-    //                 .then((data) => {
-    //                     if (data == 1) {
-    //                         res.status(200).json(data);
-    //                     } else {
-    //                         {
-    //                             res.status(400).json({
-    //                                 message: "no se actualizó el rol",
-    //                             });
-    //                         }
-    //                     }
-    //                 })
-    //                 .catch((err) => {
-    //                     res.status(400).json({ message: err });
-    //                 });
-    //         } else {
-    //             res.status(400).json({
-    //                 message: "Usted no está autorizado para estos permisos",
-    //             });
-    //         }
-    //     })
-    //     .catch((err) => {
-    //         res.status(400).json({ message: err });
-    //     });
+
+    usersControllers
+        .getUserById(req.user.id)
+        .then((data) => {
+            if (data.dataValues.user_role.level >= newRoleId) {
+                usersControllers
+                    .changeUserRoleController(id, newRoleId)
+                    .then((data) => {
+                        if (data == 1) {
+                            res.status(200).json(data);
+                        } else {
+                            {
+                                res.status(400).json({
+                                    message: "no se actualizó el rol",
+                                });
+                            }
+                        }
+                    })
+                    .catch((err) => {
+                        res.status(400).json({ message: err });
+                    });
+            } else {
+                res.status(400).json({
+                    message: "Usted no está autorizado para estos permisos",
+                });
+            }
+        })
+        .catch((err) => {
+            res.status(400).json({ message: err });
+        });
 };
 
 module.exports = {

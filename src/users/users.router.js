@@ -31,12 +31,10 @@ router
     .route("/me")
     .get(
         passport.authenticate("jwt", { session: false }),
-        roleValidate(["Administrator", "Cliente"]),
         userServices.getMyUser
     )
     .patch(
         passport.authenticate("jwt", { session: false }),
-        roleValidate(["Administrator", "Cliente"]),
         userServices.patchMyUser
     )
     .delete(

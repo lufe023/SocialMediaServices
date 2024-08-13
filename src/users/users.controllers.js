@@ -111,7 +111,7 @@ const changeForgotPassword = async (idRequest, data) => {
 const changeUserRoleController = async (id, newRole) => {
     const change = await Users.update(
         {
-            userRoleId: newRole,
+            role: newRole,
         },
         {
             where: {
