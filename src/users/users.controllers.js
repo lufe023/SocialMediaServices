@@ -69,6 +69,11 @@ const getUserByEmail = async (email) => {
             email: email,
             status: "active",
         },
+        include: [
+            {
+                model: Roles,
+            },
+        ],
     });
     return data;
 };
@@ -103,6 +108,21 @@ const changeForgotPassword = async (idRequest, data) => {
     return result;
 };
 
+const changeUserRoleController = async (id, newRole) => {
+    const change = await Users.update(
+        {
+            userRoleId: newRole,
+        },
+        {
+            where: {
+                id,
+            },
+        }
+    );
+
+    return change;
+};
+
 module.exports = {
     createUser,
     getAllUsers,
@@ -112,4 +132,5 @@ module.exports = {
     getUserByEmail,
     requestForgotPassword,
     changeForgotPassword,
+    changeUserRoleController,
 };

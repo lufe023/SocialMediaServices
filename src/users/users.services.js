@@ -160,7 +160,8 @@ const patchUser = (req, res) => {
     const id = req.params.id;
     const data = req.body;
     const AdminId = req.user.id;
-    if (AdminId === id && !data.active) {
+
+    if (AdminId === id && data.hasOwnProperty("active") && !data.active) {
         res.status(400).json({
             message: "No puedes, ni debes desactivarte a ti mismo",
         });
@@ -173,7 +174,7 @@ const patchUser = (req, res) => {
                         message: `User with ID: ${id}, edited succesfully!`,
                     });
                 } else {
-                    res.status(404).json({ message: "Invalid ID h" });
+                    res.status(404).json({ message: "Invalid ID" });
                 }
             })
             .catch((err) => {
@@ -256,6 +257,46 @@ const deleteMyUser = (req, res) => {
         });
 };
 
+//cambiar el rol de un usuario
+const changeUserRoleService = (req, res) => {
+    const { id, newRoleId } = req.body;
+    console.log("aqui");
+    console.log(newRoleId);
+    console.log(id);
+    res.status(200).json({
+        message: `Your user was deleted succesfully!`,
+    });
+    // usersControllers
+    //     .getUserById(req.user.id)
+    //     .then((data) => {
+    //         if (data.userRoleId > newRoleId) {
+    //             usersControllers
+    //                 .changeUserRoleController(id, newRoleId)
+    //                 .then((data) => {
+    //                     if (data == 1) {
+    //                         res.status(200).json(data);
+    //                     } else {
+    //                         {
+    //                             res.status(400).json({
+    //                                 message: "no se actualizó el rol",
+    //                             });
+    //                         }
+    //                     }
+    //                 })
+    //                 .catch((err) => {
+    //                     res.status(400).json({ message: err });
+    //                 });
+    //         } else {
+    //             res.status(400).json({
+    //                 message: "Usted no está autorizado para estos permisos",
+    //             });
+    //         }
+    //     })
+    //     .catch((err) => {
+    //         res.status(400).json({ message: err });
+    //     });
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -267,4 +308,5 @@ module.exports = {
     deleteMyUser,
     requestForgotPassword,
     changeForgotPassword,
+    changeUserRoleService,
 };

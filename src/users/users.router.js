@@ -25,6 +25,8 @@ router.get(
 //! router.delete('/:id')
 
 //? Ruta de informacion propia del usuario loggeado
+//? /api/v1/users/changeUserRole
+
 router
     .route("/me")
     .get(
@@ -67,6 +69,14 @@ router
         passport.authenticate("jwt", { session: false }),
         roleValidate(["Administrator"]),
         userServices.deleteUser
+    );
+
+router
+    .route("/role/changeUserRole")
+    .patch(
+        passport.authenticate("jwt", { session: false }),
+        roleValidate(["Administrator"]),
+        userServices.changeUserRoleService
     );
 
 module.exports = router;

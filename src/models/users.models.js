@@ -39,7 +39,6 @@ const Users = db.define("users", {
     phone: {
         type: DataTypes.STRING, // +52
         allowNull: true,
-        unique: true,
     },
     birthday: {
         type: DataTypes.DATEONLY,
