@@ -22,8 +22,8 @@ async function createServiceOrder(req, res) {
                 .json({ message: "Fondos no encontrados para el usuario" });
         }
 
-        const totalCost = service.rate * quantity;
-        if (fund.balance < totalCost) {
+        const customerPrice = service.price * quantity;
+        if (fund.balance < customerPrice) {
             return res.status(400).json({ message: "Fondos insuficientes" });
         }
 
@@ -60,15 +60,15 @@ async function createServiceOrder(req, res) {
             serviceId,
             quantity,
             serviceDescription: service.name,
-            totalCost,
-            customerPrice: service.price * quantity,
+            totalCost: service.rate * quantity,
+            customerPrice,
             status: "created",
             jqawOrderId,
             link,
         });
 
         // Actualizar los fondos del usuario
-        fund.balance -= totalCost;
+        fund.balance -= customerPrice;
         await fund.save();
 
         res.status(201).json(newOrder);
