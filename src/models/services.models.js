@@ -68,6 +68,11 @@ const Services = db.define("services", {
         allowNull: false,
         defaultValue: false,
     },
+    published: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+    },
+
     createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
