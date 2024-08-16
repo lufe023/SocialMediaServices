@@ -89,6 +89,7 @@ const getUserServiceOrders = async (req, res) => {
                     model: Services,
                     as: "service", // asegúrate de que el alias sea correcto
                     attributes: [
+                        "id",
                         "name",
                         "description",
                         "price",
