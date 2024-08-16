@@ -1,14 +1,34 @@
 const usersControllers = require("./users.controllers");
 const { enviarMail } = require("../utils/mails/sendEmail");
+const { host, frontendHost } = require("../config");
 
 const getAllUsers = (req, res) => {
+    //donde inicia
+    const offset = Number(req.query.offset) || 0;
+
+    //capacidad maxima
+    const limit = Number(req.query.limit) || 10;
+
+    const urlBase = `${host}/api/v1/users`;
+
     usersControllers
-        .getAllUsers()
+        .getAllUsers(offset, limit)
         .then((data) => {
-            res.status(200).json(data);
+            const nexPage =
+                data.count - offset >= limit
+                    ? `${urlBase}?offset=${offset + limit}&limit=${limit}`
+                    : null;
+            res.status(200).json({
+                next: nexPage,
+                prev: `${urlBase}`,
+                offset,
+                limit,
+                count: data.count,
+                results: data,
+            });
         })
         .catch((err) => {
-            res.status(400).json({ message: err.message });
+            res.status(400).json({ message: err });
         });
 };
 
@@ -22,6 +42,30 @@ const getUserById = (req, res) => {
         .catch((err) => {
             res.status(404).json({ message: err.message });
         });
+};
+
+const simpleFindUser = async (req, res) => {
+    const { findUser } = req.body;
+
+    if (typeof findUser !== "string" || findUser.trim() === "") {
+        return res.status(400).json({
+            message: "Búsqueda vacía o inválida",
+            field: "findUser",
+        });
+    }
+
+    try {
+        const data = await usersControllers.findUserController(findUser);
+        res.status(200).json({
+            data,
+            busqueda: findUser,
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: "Error al buscar usuario",
+            error: err.message,
+        });
+    }
 };
 
 const registerUser = (req, res) => {
@@ -304,4 +348,5 @@ module.exports = {
     requestForgotPassword,
     changeForgotPassword,
     changeUserRoleService,
+    simpleFindUser,
 };

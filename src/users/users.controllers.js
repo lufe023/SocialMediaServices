@@ -6,9 +6,15 @@ const { hashPassword } = require("../utils/crypto");
 const { Model } = require("sequelize");
 const Funds = require("../models/funds.models");
 const Roles = require("../models/roles.models");
-
-const getAllUsers = async () => {
+const { Sequelize, Op } = require("sequelize");
+const getAllUsers = async (offset, limit) => {
     const data = await Users.findAll({
+        offset: offset,
+        limit: limit,
+        attributes: {
+            exclude: ["password"],
+        },
+
         include: [{ model: Funds, as: "fondos" }, { model: Roles }],
         attributes: { exclude: ["password"] },
     });
@@ -123,6 +129,50 @@ const changeUserRoleController = async (id, newRole) => {
     return change;
 };
 
+const findUserController = async (findWord) => {
+    let looking = findWord.trim().replace(/-/g, "");
+
+    // Separar el nombre y el apellido
+    const [firstName, ...lastNameParts] = looking.split(" ");
+    const lastName = lastNameParts.join(" ");
+
+    // Construir las condiciones dinámicamente
+    let whereConditions = [
+        { email: { [Op.iLike]: `%${looking}%` } },
+        { phone: { [Op.iLike]: `%${looking}%` } },
+    ];
+
+    // Condiciones adicionales basadas en la entrada
+    if (firstName) {
+        whereConditions.push({ firstName: { [Op.iLike]: `%${firstName}%` } });
+    }
+    if (lastName) {
+        whereConditions.push({ lastName: { [Op.iLike]: `%${lastName}%` } });
+    }
+    if (firstName && lastName) {
+        whereConditions.push({
+            [Op.and]: [
+                { firstName: { [Op.iLike]: `%${firstName}%` } },
+                { lastName: { [Op.iLike]: `%${lastName}%` } },
+            ],
+        });
+    }
+
+    const data = await Users.findAndCountAll({
+        limit: 5,
+        where: {
+            [Op.or]: whereConditions,
+        },
+        include: [
+            {
+                model: Roles,
+            },
+        ],
+    });
+
+    return data;
+};
+
 module.exports = {
     createUser,
     getAllUsers,
@@ -133,4 +183,5 @@ module.exports = {
     requestForgotPassword,
     changeForgotPassword,
     changeUserRoleController,
+    findUserController,
 };

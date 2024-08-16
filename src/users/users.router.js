@@ -77,4 +77,7 @@ router
         userServices.changeUserRoleService
     );
 
+//busqueda simple en tiempo real de personas
+router.post("/userSearch", userServices.simpleFindUser);
+
 module.exports = router;
