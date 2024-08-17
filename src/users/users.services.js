@@ -68,7 +68,7 @@ const simpleFindUser = async (req, res) => {
     }
 };
 
-const registerUser = (req, res) => {
+const registerUser = async (req, res) => {
     const {
         firstName,
         lastName,
@@ -80,29 +80,10 @@ const registerUser = (req, res) => {
         country,
     } = req.body;
 
-    if (firstName && lastName && email && password && phone && birthday) {
-        //? Ejecutamos el controller
-        usersControllers
-            .createUser({
-                firstName,
-                lastName,
-                email,
-                password,
-                phone,
-                birthday,
-                gender,
-                country,
-            })
-            .then((data) => {
-                res.status(201).json(data);
-            })
-            .catch((err) => {
-                res.status(400).json(err.message);
-            });
-    } else {
-        //? Error cuando no mandan todos los datos necesarios para crear un usuario
-        res.status(400).json({
-            message: "All fields must be completed",
+    // Validación de campos básicos (simplificada)
+    if (!firstName || !lastName || !email || !password) {
+        return res.status(400).json({
+            message: "Todos los campos deben ser llenados",
             fields: {
                 firstName: "string",
                 lastName: "string",
@@ -111,6 +92,25 @@ const registerUser = (req, res) => {
                 phone: "+521231231231",
                 birthday: "YYYY/MM/DD",
             },
+        });
+    }
+
+    try {
+        const newUser = await usersControllers.createUser({
+            firstName,
+            lastName,
+            email,
+            active: true,
+            password,
+            phone,
+            birthday,
+            gender,
+            country,
+        });
+        res.status(201).json(newUser);
+    } catch (err) {
+        res.status(500).json({
+            message: err.message || "Failed to register user",
         });
     }
 };

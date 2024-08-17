@@ -33,18 +33,25 @@ const getUserById = async (id) => {
 };
 
 const createUser = async (data) => {
-    const newUser = await Users.create({
-        id: uuid.v4(),
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: hashPassword(data.password),
-        phone: data.phone,
-        birthday: data.birthday,
-        gender: data.gender,
-        country: data.country,
-    });
-    return newUser;
+    try {
+        const newUser = await Users.create({
+            id: uuid.v4(),
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            password: hashPassword(data.password),
+            phone: data.phone,
+            birthday: data.birthday,
+            gender: data.gender,
+            country: data.country,
+            role: 1, // Assuming 1 is the default role
+        });
+        return newUser;
+    } catch (error) {
+        // Log the error for debugging
+        console.error("Error creando el usuario:", error);
+        throw new Error("Fallo creando el usuario");
+    }
 };
 
 const updateUser = async (id, data) => {
