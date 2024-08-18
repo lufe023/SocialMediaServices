@@ -36,6 +36,13 @@ router.get(
     servicesServices.getServicesByCategory
 );
 
+router.get(
+    "/admin/category/:category",
+    passport.authenticate("jwt", { session: false }),
+    roleValidate(["Administrator"]),
+    servicesServices.getServicesByCategoryForAdmins
+);
+
 router
     .route("/:id")
     .get(
@@ -50,7 +57,7 @@ router
     )
     .delete(
         passport.authenticate("jwt", { session: false }),
-        roleValidate(["Administrator", "Client"]),
+        roleValidate(["Administrator"]),
         servicesServices.deleteService
     );
 

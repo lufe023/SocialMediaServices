@@ -35,6 +35,17 @@ const getServicesByCategory = async (parentCategory) => {
     return await Services.findAll({
         where: {
             parentCategory: parentCategory,
+            published: true,
+        },
+    });
+};
+
+// Obtener servicios por categoría
+const getServicesByCategoryForAdmins = async (parentCategory) => {
+    console.log("Adminstrator");
+    return await Services.findAll({
+        where: {
+            parentCategory: parentCategory,
         },
     });
 };
@@ -47,4 +58,5 @@ module.exports = {
     deleteService,
     getAllCategories,
     getServicesByCategory,
+    getServicesByCategoryForAdmins,
 };

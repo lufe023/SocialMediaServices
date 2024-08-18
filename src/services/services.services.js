@@ -79,9 +79,17 @@ const getAllCategories = (req, res) => {
 //Obtener servicios por categoría
 const getServicesByCategory = (req, res) => {
     const parentCategory = req.params.category;
-
     servicesControllers
         .getServicesByCategory(parentCategory)
+        .then((data) => res.status(200).json(data))
+        .catch((err) => res.status(500).json({ message: err.message }));
+};
+
+//Obtener servicios por categoría
+const getServicesByCategoryForAdmins = (req, res) => {
+    const parentCategory = req.params.category;
+    servicesControllers
+        .getServicesByCategoryForAdmins(parentCategory)
         .then((data) => res.status(200).json(data))
         .catch((err) => res.status(500).json({ message: err.message }));
 };
@@ -94,4 +102,5 @@ module.exports = {
     deleteService,
     getAllCategories,
     getServicesByCategory,
+    getServicesByCategoryForAdmins,
 };
