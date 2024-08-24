@@ -94,6 +94,31 @@ const getServicesByCategoryForAdmins = (req, res) => {
         .catch((err) => res.status(500).json({ message: err.message }));
 };
 
+// Actualizar de forma grupal
+const updateServiceGroup = async (req, res) => {
+    const updatedServices = req.body.updatedServices;
+
+    if (!Array.isArray(updatedServices) || updatedServices.length === 0) {
+        return res.status(400).json({
+            message: "No se proporcionaron servicios para actualizar.",
+        });
+    }
+
+    try {
+        // Llamamos a la función que actualiza los servicios en la base de datos
+        const result = await servicesControllers.updateServiceGroup(
+            updatedServices
+        );
+
+        res.status(200).json({
+            message: result.message, // Mensaje de éxito o error desde la función de actualización
+        });
+    } catch (err) {
+        console.error("Error actualizando servicios:", err);
+        res.status(500).json({ message: "Error actualizando servicios." });
+    }
+};
+
 module.exports = {
     getAllServices,
     getServiceById,
@@ -103,4 +128,5 @@ module.exports = {
     getAllCategories,
     getServicesByCategory,
     getServicesByCategoryForAdmins,
+    updateServiceGroup,
 };

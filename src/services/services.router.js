@@ -61,4 +61,12 @@ router
         servicesServices.deleteService
     );
 
+router
+    .route("/edit/group")
+    .patch(
+        passport.authenticate("jwt", { session: false }),
+        roleValidate(["Administrator"]),
+        servicesServices.updateServiceGroup
+    );
+
 module.exports = router;

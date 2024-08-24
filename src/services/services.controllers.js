@@ -42,12 +42,57 @@ const getServicesByCategory = async (parentCategory) => {
 
 // Obtener servicios por categoría
 const getServicesByCategoryForAdmins = async (parentCategory) => {
-    console.log("Adminstrator");
     return await Services.findAll({
         where: {
             parentCategory: parentCategory,
         },
     });
+};
+
+const updateServiceGroup = async (services) => {
+    const transaction = await Services.sequelize.transaction();
+
+    try {
+        await Promise.all(
+            services.map(async (service) => {
+                const [updatedRows] = await Services.update(
+                    {
+                        // Campos que se deben actualizar
+                        name: service.name,
+                        price: service.price,
+                        jqawPrice: service.jqawPrice,
+                        rate: service.rate,
+                        minQuantity: service.minQuantity,
+                        maxQuantity: service.maxQuantity,
+                        category: service.category,
+                        parentCategory: service.parentCategory,
+                        dripfeed: service.dripfeed,
+                        refill: service.refill,
+                        cancel: service.cancel,
+                        published: service.published,
+                    },
+                    {
+                        where: { id: service.id },
+                        transaction,
+                    }
+                );
+                console.log(
+                    `Rows updated for service ID ${service.id}:`,
+                    updatedRows
+                );
+            })
+        );
+
+        await transaction.commit();
+        return {
+            success: true,
+            message: "Servicios actualizados correctamente",
+        };
+    } catch (error) {
+        await transaction.rollback();
+        console.error("Error actualizando servicios:", error);
+        throw new Error("Error actualizando servicios");
+    }
 };
 
 module.exports = {
@@ -59,4 +104,5 @@ module.exports = {
     getAllCategories,
     getServicesByCategory,
     getServicesByCategoryForAdmins,
+    updateServiceGroup,
 };
