@@ -12,7 +12,7 @@ passport.use(
             clientSecret: googleClientSecret,
             callbackURL:
                 process.env.NODE_ENV === "production"
-                    ? "https://www.necioshop.com/api/v1/auth/google/callback"
+                    ? "https://socialmediaservices-production.up.railway.app/api/v1/auth/google/callback"
                     : "http://localhost:9000/api/v1/auth/google/callback",
         },
         async (accessToken, refreshToken, profile, done) => {

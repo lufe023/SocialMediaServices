@@ -21,6 +21,7 @@ router.get("/google/callback", (req, res, next) => {
     passport.authenticate("google", { session: false }, (err, user, info) => {
         const frontendHost =
             process.env.FRONTEND_HOST || "http://localhost:5173";
+
         const frontendHostWithoutTrailingSlash = frontendHost.replace(
             /\/+$/,
             ""
@@ -41,6 +42,7 @@ router.get("/google/callback", (req, res, next) => {
         );
     })(req, res, next);
 });
+
 // Ruta para cerrar sesión
 router.get("/logout", (req, res) => {
     req.logout((err) => {
