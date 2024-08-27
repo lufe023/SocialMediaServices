@@ -145,7 +145,7 @@ const requestForgotPassword = (req, res) => {
 
                 if (email.includes("@")) {
                     enviarMail(
-                        "no-reply@mielector.com",
+                        "info@necioshop.com",
                         email,
                         "Recuperación de Contraseña",
                         "La recuperación se envió",
