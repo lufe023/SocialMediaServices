@@ -139,7 +139,7 @@ const requestForgotPassword = (req, res) => {
                         <p style="font-size: 16px; color: #666;">Se ha hecho una petición para recuperar la contraseña en nuestro sistema. Haga clic en el siguiente enlace para recuperar su contraseña:</p>
                         <a href='${frontendHost}#/recoverypassword/${data[1]}' style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; border-radius: 5px; text-decoration: none; margin: 20px 0;">Recuperar Contraseña</a>
                         <p style="font-size: 14px; color: #999;">Si no solicitó este correo, puede ignorarlo.</p>
-                        <p style="font-size: 14px; color: #999;">Saludos,<br>El equipo de Luis Fernando Microsystem</p>
+                        <p style="font-size: 14px; color: #999;">Saludos, del equipo <br>Necio Shop Social Networking Services</p>
                     </div>
                 `;
 
