@@ -119,6 +119,13 @@ const updateServiceGroup = async (req, res) => {
     }
 };
 
+const getAllServicesFromJQAW = async (req, res) => {
+    servicesControllers
+        .getAllServicesFromJQAW()
+        .then((data) => res.status(200).json(data))
+        .catch((err) => res.status(500).json({ err }));
+};
+
 module.exports = {
     getAllServices,
     getServiceById,
@@ -129,4 +136,5 @@ module.exports = {
     getServicesByCategory,
     getServicesByCategoryForAdmins,
     updateServiceGroup,
+    getAllServicesFromJQAW,
 };

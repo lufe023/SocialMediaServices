@@ -1,4 +1,5 @@
 const Services = require("../models/services.models");
+const AuditLog = require("../models/AuditLog");
 require("dotenv").config();
 const axios = require("axios");
 
@@ -10,10 +11,6 @@ const importJqawServices = async (req, res) => {
         });
 
         const servicesData = response.data;
-
-        // Verificar la estructura de la respuesta
-        console.log("Respuesta de la API de JQAW:", servicesData);
-
         if (!Array.isArray(servicesData)) {
             console.error(
                 "La respuesta de la API no es un array:",
@@ -24,63 +21,108 @@ const importJqawServices = async (req, res) => {
             });
         }
 
-        // Guardar cada servicio en la base de datos
-        const savedServices = await Promise.all(
-            servicesData.map(async (service) => {
-                // Asignar la categoría madre basándose en la descripción del servicio
-                let parentCategory = "Otros"; // Valor por defecto
+        const existingServices = await Services.findAll();
+        const existingServiceIds = existingServices.map(
+            (service) => service.service
+        );
 
-                const nameLowerCase = service.name.toLowerCase();
+        for (const service of servicesData) {
+            let parentCategory = determineParentCategory(service.name);
 
-                if (nameLowerCase.includes("instagram")) {
-                    parentCategory = "Instagram";
-                } else if (nameLowerCase.includes("twitter")) {
-                    parentCategory = "Twitter";
-                } else if (nameLowerCase.includes("facebook")) {
-                    parentCategory = "Facebook";
-                } else if (nameLowerCase.includes("tiktok")) {
-                    parentCategory = "TikTok";
-                } else if (nameLowerCase.includes("youtube")) {
-                    parentCategory = "YouTube";
-                } else if (nameLowerCase.includes("linkedin")) {
-                    parentCategory = "LinkedIn";
-                } else if (nameLowerCase.includes("snapchat")) {
-                    parentCategory = "Snapchat";
-                } else if (nameLowerCase.includes("pinterest")) {
-                    parentCategory = "Pinterest";
-                } else if (nameLowerCase.includes("soundcloud")) {
-                    parentCategory = "SoundCloud";
-                } else if (nameLowerCase.includes("spotify")) {
-                    parentCategory = "Spotify";
-                } else if (nameLowerCase.includes("threads")) {
-                    parentCategory = "threads ";
-                } else if (nameLowerCase.includes("twitch")) {
-                    parentCategory = "Twitch ";
-                } else if (nameLowerCase.includes("telegram")) {
-                    parentCategory = "Telegram ";
+            const jqawPrice = parseFloat(service.rate) / 1000;
+
+            const existingService = await Services.findOne({
+                where: { service: service.service },
+            });
+
+            if (existingService) {
+                // Si el servicio existe, lo actualizamos si hay cambios
+                if (
+                    existingService.name !== service.name ||
+                    existingService.type !== service.type ||
+                    existingService.description !== service.description ||
+                    existingService.jqawPrice !== jqawPrice ||
+                    existingService.rate !== service.rate ||
+                    existingService.minQuantity !== service.min ||
+                    existingService.maxQuantity !== service.max ||
+                    existingService.category !== service.category ||
+                    existingService.parentCategory !== parentCategory ||
+                    existingService.dripfeed !== service.dripfeed ||
+                    existingService.refill !== service.refill ||
+                    existingService.cancel !== service.cancel
+                ) {
+                    await existingService.update({
+                        name: service.name,
+                        type: service.type,
+                        description: service.description || "",
+                        jqawPrice: jqawPrice,
+                        rate: service.rate,
+                        minQuantity: service.min,
+                        maxQuantity: service.max,
+                        category: service.category,
+                        parentCategory: parentCategory,
+                        dripfeed: service.dripfeed,
+                        refill: service.refill,
+                        cancel: service.cancel,
+                    });
+
+                    await AuditLog.create({
+                        serviceId: existingService.id,
+                        action: "update",
+                        description: `El servicio ${existingService.name} ha sido actualizado.`,
+                    });
                 }
-
-                return await Services.create({
+            } else {
+                // Si el servicio no existe, lo creamos y lo registramos en la auditoría
+                const newService = await Services.create({
                     service: service.service,
                     name: service.name,
                     type: service.type,
-                    description: service.description || "", // Proporcionar un valor por defecto si falta
-                    jqawPrice: service.rate, // Usar `rate` como el precio en JQAW
+                    description: service.description || "",
+                    jqawPrice: jqawPrice,
                     rate: service.rate,
                     minQuantity: service.min,
                     maxQuantity: service.max,
                     category: service.category,
-                    parentCategory: parentCategory, // Nueva categoría madre
+                    parentCategory: parentCategory,
                     dripfeed: service.dripfeed,
                     refill: service.refill,
                     cancel: service.cancel,
+                    published: false, // No se publica automáticamente
                 });
-            })
-        );
+
+                await AuditLog.create({
+                    serviceId: newService.id,
+                    action: "create",
+                    description: `Nuevo servicio ${newService.name} creado.`,
+                });
+            }
+
+            // Marcar como existente
+            existingServiceIds.splice(
+                existingServiceIds.indexOf(service.service),
+                1
+            );
+        }
+
+        // Despublicar servicios que ya no existen en la API
+        for (const serviceId of existingServiceIds) {
+            const serviceToUnpublish = await Services.findOne({
+                where: { service: serviceId },
+            });
+            if (serviceToUnpublish) {
+                await serviceToUnpublish.update({ published: false });
+
+                await AuditLog.create({
+                    serviceId: serviceToUnpublish.id,
+                    action: "unpublish",
+                    description: `El servicio ${serviceToUnpublish.name} ya no está disponible y ha sido despublicado.`,
+                });
+            }
+        }
 
         res.status(200).json({
-            message: "Servicios importados con éxito.",
-            data: savedServices,
+            message: "Servicios importados y actualizados con éxito.",
         });
     } catch (error) {
         console.error("Error importando servicios de JQAW:", error);
@@ -88,6 +130,24 @@ const importJqawServices = async (req, res) => {
             message: "Error importando servicios de JQAW.",
         });
     }
+};
+
+const determineParentCategory = (name) => {
+    const nameLowerCase = name.toLowerCase();
+    if (nameLowerCase.includes("instagram")) return "Instagram";
+    if (nameLowerCase.includes("twitter")) return "Twitter";
+    if (nameLowerCase.includes("facebook")) return "Facebook";
+    if (nameLowerCase.includes("tiktok")) return "TikTok";
+    if (nameLowerCase.includes("youtube")) return "YouTube";
+    if (nameLowerCase.includes("linkedin")) return "LinkedIn";
+    if (nameLowerCase.includes("snapchat")) return "Snapchat";
+    if (nameLowerCase.includes("pinterest")) return "Pinterest";
+    if (nameLowerCase.includes("soundcloud")) return "SoundCloud";
+    if (nameLowerCase.includes("spotify")) return "Spotify";
+    if (nameLowerCase.includes("threads")) return "Threads";
+    if (nameLowerCase.includes("twitch")) return "Twitch";
+    if (nameLowerCase.includes("telegram")) return "Telegram";
+    return "Otros";
 };
 
 module.exports = {

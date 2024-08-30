@@ -1,18 +1,59 @@
 const axios = require("axios");
 const ServiceOrders = require("../models/serviceOrders.models");
-const Services = require("../models/services.models");
 const Funds = require("../models/funds.models");
 const Users = require("../models/users.models");
+const Configuration = require("../models/configuration"); // Importa el modelo de configuración si no está importado ya
 
 const API_KEY = process.env.JQAW_API_KEY;
+
+// Función para obtener la lista de servicios desde JQAW con el precio unitario calculado
+async function getServiceByIdWithPricing(serviceId) {
+    try {
+        const configId = process.env.CONFIGURATION_ID;
+        const configuration = await Configuration.findOne({
+            where: { id: configId },
+        });
+
+        if (!configuration) {
+            throw new Error("Configuration not found");
+        }
+
+        const Mult = configuration.multiplier;
+
+        const response = await axios.post("https://jqaw.org/api/v2", {
+            key: API_KEY,
+            action: "services",
+        });
+
+        const services = response.data;
+
+        const service = services.find(
+            (s) => s.service.toString() === serviceId.toString()
+        );
+        if (!service) return null;
+
+        const rate = parseFloat(service.rate);
+        const unitedPrice = (rate / 1000) * Mult;
+        service.unitedPrice = parseFloat(unitedPrice.toFixed(5)); // Redondear a 5 decimales
+
+        return service;
+    } catch (error) {
+        console.error("Error fetching services from JQAW:", error);
+        return null;
+    }
+}
 
 async function createServiceOrder(req, res) {
     const { userId, serviceId, quantity, link } = req.body;
 
     try {
-        const service = await Services.findByPk(serviceId);
+        // Obtener el servicio con el precio unitario calculado
+        const service = await getServiceByIdWithPricing(serviceId);
+
         if (!service) {
-            return res.status(404).json({ message: "Servicio no encontrado" });
+            return res.status(404).json({
+                message: `Servicio ${serviceId} no fue encontrado encontrado`,
+            });
         }
 
         const fund = await Funds.findOne({ where: { userId } });
@@ -22,12 +63,13 @@ async function createServiceOrder(req, res) {
                 .json({ message: "Fondos no encontrados para el usuario" });
         }
 
-        const customerPrice = service.price * quantity;
+        // Calcular el precio a cobrar al cliente
+        const customerPrice = service.unitedPrice * quantity;
         if (fund.balance < customerPrice) {
             return res.status(400).json({ message: "Fondos insuficientes" });
         }
 
-        // Llamada a la API externa
+        // Llamada a la API externa para crear la orden
         let response;
         try {
             response = await axios.post("https://jqaw.org/api/v2", null, {
@@ -60,7 +102,7 @@ async function createServiceOrder(req, res) {
             serviceId,
             quantity,
             serviceDescription: service.name,
-            totalCost: service.rate * quantity,
+            totalCost: service.unitedPrice * quantity,
             customerPrice,
             status: "created",
             jqawOrderId,
@@ -84,19 +126,6 @@ const getUserServiceOrders = async (req, res) => {
 
         const serviceOrders = await ServiceOrders.findAll({
             where: { userId },
-            include: [
-                {
-                    model: Services,
-                    as: "service", // asegúrate de que el alias sea correcto
-                    attributes: [
-                        "id",
-                        "name",
-                        "description",
-                        "price",
-                        "parentCategory",
-                    ], // atributos que deseas incluir
-                },
-            ],
         });
 
         const orderIds = serviceOrders
@@ -123,7 +152,7 @@ const getUserServiceOrders = async (req, res) => {
                 startCount: statusInfo.start_count,
                 remains: statusInfo.remains,
                 totalCost: order.totalCost,
-                serviceDetails: order.service, // detalles del servicio referenciado
+                serviceDetails: order.serviceDescription,
             };
         });
 

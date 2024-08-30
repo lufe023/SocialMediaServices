@@ -4,7 +4,9 @@ const Transactions = require("./transactions.models");
 const Services = require("./services.models");
 const FundTransactions = require("./fundTransactions.models");
 const Funds = require("./funds.models");
-const ServiceOrders = require("./serviceOrders.models"); // Asegúrate de importar el modelo
+const ServiceOrders = require("./serviceOrders.models");
+const AuditLog = require("./AuditLog");
+const Configuration = require("./configuration");
 
 const initModels = () => {
     Users.belongsTo(Roles, { foreignKey: "role" });

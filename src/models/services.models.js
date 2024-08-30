@@ -28,6 +28,16 @@ const Services = db.define("services", {
         type: DataTypes.FLOAT,
         allowNull: true,
     },
+    priceMultiplied: {
+        // Precio para el cliente final
+        type: DataTypes.DECIMAL,
+        allowNull: true,
+    },
+    paidPreferred: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: "priceMultiplied",
+    },
     jqawPrice: {
         // Precio del servicio en jqaw
         type: DataTypes.FLOAT,

@@ -1,5 +1,9 @@
 // controllers/services.controllers.js
 const Services = require("../models/services.models");
+const Configuration = require("../models/configuration"); // Ajusta la ruta según sea necesario
+
+const axios = require("axios");
+require("dotenv").config();
 
 const getAllServices = async () => {
     return await Services.findAll();
@@ -95,6 +99,44 @@ const updateServiceGroup = async (services) => {
     }
 };
 
+const getAllServicesFromJQAW = async () => {
+    try {
+        // Obtener la configuración específica por su ID
+        const configId = process.env.CONFIGURATION_ID;
+        const configuration = await Configuration.findOne({
+            where: { id: configId },
+        });
+
+        if (!configuration) {
+            throw new Error("Configuration not found");
+        }
+
+        // Usar el multiplier de la configuración
+        const Mult = configuration.multiplier;
+
+        // Hacer la solicitud a la API de JQAW
+        const response = await axios.post("https://jqaw.org/api/v2", {
+            key: process.env.JQAW_API_KEY,
+            action: "services",
+        });
+
+        const services = response.data;
+
+        // Procesar el array para agregar el campo unitedPrice con redondeo
+        const processedServices = services.map((service) => {
+            const rate = parseFloat(service.rate);
+            const unitedPrice = (rate / 1000) * Mult;
+            service.unitedPrice = parseFloat(unitedPrice.toFixed(5)); // Redondear a 5 decimales
+            return service;
+        });
+
+        return processedServices;
+    } catch (error) {
+        console.error("Error fetching services from JQAW:", error);
+        return { message: "Error fetching services from JQAW" }; // Return an error object or handle as needed
+    }
+};
+
 module.exports = {
     getAllServices,
     getServiceById,
@@ -105,4 +147,5 @@ module.exports = {
     getServicesByCategory,
     getServicesByCategoryForAdmins,
     updateServiceGroup,
+    getAllServicesFromJQAW,
 };
