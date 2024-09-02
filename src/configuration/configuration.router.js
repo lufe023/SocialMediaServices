@@ -12,6 +12,14 @@ router.get(
     configurationServices.getAllConfigurationsServices
 );
 
+// Ruta para obtener todas las configuraciones
+router.get(
+    "/balance",
+    passport.authenticate("jwt", { session: false }),
+    roleValidate(["Administrator"]),
+    configurationServices.getAccountBalance
+);
+
 // Ruta para obtener una configuración por ID
 router.get(
     "/:id",
